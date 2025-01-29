@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Parse Firebase Admin credentials from .env
 const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK as string);
 
 if (serviceAccount.private_key) {
@@ -17,4 +18,3 @@ admin.initializeApp({
 });
 
 export const auth = getAuth();
-
