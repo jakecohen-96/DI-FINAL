@@ -1,6 +1,42 @@
-body {
-    font-family: Arial;
-    margin: 0;
-    padding: 0;
-    background-color: white;
-  }
+.chat-container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+}
+
+.messages-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  height: 300px;
+  overflow-y: scroll;
+}
+
+.message {
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: gray;
+}
+
+.chat-form {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 5px;
+}
+
+.send-button {
+  padding: 5px 10px;
+}
+
+.logout-button {
+  margin-top: 10px;
+}

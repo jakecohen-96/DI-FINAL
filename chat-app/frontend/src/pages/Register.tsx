@@ -3,15 +3,22 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 
-const Register = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Register: React.FC = () => {
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+    setError(null);
+
+    const { email, password } = credentials;
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
@@ -32,11 +39,25 @@ const Register = () => {
       <h2>Register</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleRegister}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={credentials.email}
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={credentials.password}
+          onChange={handleChange}
+        />
         <button type="submit">Register</button>
       </form>
-      <p>Already have an account? <a href="/">Login</a></p>
+      <p>
+        Already have an account? <a href="/">Login</a>
+      </p>
     </div>
   );
 };
