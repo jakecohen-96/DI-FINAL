@@ -50,7 +50,12 @@ const Chat: React.FC = () => {
   return (
     <div className="chat-container">
       <header className="chat-header">
-        <h2>Chat</h2>
+        <div className="header-left">
+          <h2>Jake's Chat App (Under construction)</h2>
+          <p className="greeting">
+            Hello, {auth.currentUser?.displayName || auth.currentUser?.email}
+          </p>
+        </div>
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </header>
       <div className="chat-content">
@@ -58,7 +63,11 @@ const Chat: React.FC = () => {
           <h3>Users</h3>
           {users.length > 0 ? (
             users.map(user => (
-              <button key={user.id} className="user-button" onClick={() => setSelectedUser(user)}>
+              <button
+                key={user.id}
+                className="user-button"
+                onClick={() => setSelectedUser(user)}
+              >
                 {user.displayName}
               </button>
             ))

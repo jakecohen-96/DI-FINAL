@@ -80,6 +80,24 @@
   flex-direction: column;
 }
 
+.typing-indicator {
+  font-size: 0.9em;
+  color: #666;
+  margin: 5px 10px;
+  font-style: italic;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.greeting {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
 /* Message Bubbles and Timestamps */
 .message {
   max-width: 70%;
