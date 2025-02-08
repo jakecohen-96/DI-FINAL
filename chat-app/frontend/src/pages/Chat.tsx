@@ -1,162 +1,79 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  setDoc,
-} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
 import { db, auth } from "../config/firebase";
-import { format } from "date-fns";
-import "../styles/global.css";
+import PrivateChat from "../components/PrivateChat";
+import { useNavigate } from "react-router-dom";
 
-interface Message {
+interface User {
   id: string;
-  text: string;
-  user: string;
-  timestamp?: any;
+  displayName: string;
 }
 
 const Chat: React.FC = () => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const currentUserId = auth.currentUser?.uid;
+  const navigate = useNavigate();
 
-  // Subscribe to chat messages in real-time
   useEffect(() => {
-    const messagesQuery = query(
-      collection(db, "messages"),
-      orderBy("timestamp", "asc")
-    );
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const newMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Message[];
-      setMessages(newMessages);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Subscribe to typing indicators
-  useEffect(() => {
-    const typingRef = collection(db, "typingIndicators");
-    const unsubscribe = onSnapshot(typingRef, (snapshot) => {
-      const usersTyping = snapshot.docs
-        .map((doc) => doc.data() as { email: string; isTyping: boolean })
-        .filter(
-          (data) =>
-            data.isTyping && data.email !== auth.currentUser?.email
-        )
-        .map((data) => data.email);
-      setTypingUsers(usersTyping);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Auto-scroll to the latest message when messages update
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Cleanup: clear the typing status when the component unmounts
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
+    const fetchUsers = async () => {
+      if (!currentUserId) return;
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const userList = querySnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() } as User))
+          .filter(user => user.id !== currentUserId);
+        setUsers(userList);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
       }
-      updateTypingStatus(false);
     };
-  }, []);
+    fetchUsers();
+  }, [currentUserId]);
 
-  // Update the current user's typing status in Firestore
-  const updateTypingStatus = async (isTyping: boolean) => {
-    if (!auth.currentUser || !auth.currentUser.email) return;
-    const userEmail = auth.currentUser.email;
+  if (loading) {
+    return <div>Loading users...</div>;
+  }
+
+  const handleLogout = async () => {
     try {
-      await setDoc(doc(db, "typingIndicators", userEmail), {
-        email: userEmail,
-        isTyping,
-        timestamp: serverTimestamp(),
-      });
+      await auth.signOut();
+      navigate("/login");
     } catch (error) {
-      console.error("Error updating typing status:", error);
-    }
-  };
-
-  // Handle input changes with a debounce to update typing status
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-    updateTypingStatus(true);
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    // Clear typing indicator after 2 seconds of inactivity
-    typingTimeoutRef.current = setTimeout(() => {
-      updateTypingStatus(false);
-    }, 2000);
-  };
-
-  // Send the message and clear the typing status
-  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage) return;
-    try {
-      await addDoc(collection(db, "messages"), {
-        text: trimmedMessage,
-        user: auth.currentUser?.email,
-        timestamp: serverTimestamp(),
-      });
-      setMessage("");
-      updateTypingStatus(false);
-    } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error signing out:", error);
     }
   };
 
   return (
     <div className="chat-container">
-      <h2>Chat</h2>
-      <div className="messages-container">
-        {messages.map((msg) => (
-          <p key={msg.id} className="message">
-            <strong>{msg.user}:</strong> {msg.text}{" "}
-            <span className="timestamp">
-              {msg.timestamp?.seconds
-                ? format(new Date(msg.timestamp.seconds * 1000), "HH:mm")
-                : "No Timestamp"}
-            </span>
-          </p>
-        ))}
-        <div ref={chatEndRef} />
+      <header className="chat-header">
+        <h2>Chat</h2>
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
+      </header>
+      <div className="chat-content">
+        <aside className="users-list">
+          <h3>Users</h3>
+          {users.length > 0 ? (
+            users.map(user => (
+              <button key={user.id} className="user-button" onClick={() => setSelectedUser(user)}>
+                {user.displayName}
+              </button>
+            ))
+          ) : (
+            <p>No other users available.</p>
+          )}
+        </aside>
+        <main className="chat-window">
+          {selectedUser ? (
+            <PrivateChat selectedUser={selectedUser} />
+          ) : (
+            <p className="chat-placeholder">Select a user to start chatting</p>
+          )}
+        </main>
       </div>
-      {/* Display typing indicators (exclude the current user) */}
-      {typingUsers.length > 0 && (
-        <p className="typing-indicator">
-          {typingUsers.join(", ")} {typingUsers.length === 1 ? "is" : "are"} typing...
-        </p>
-      )}
-      <form onSubmit={handleSendMessage} className="chat-form">
-        <input
-          type="text"
-          value={message}
-          onChange={handleInputChange}
-          placeholder="Type a message..."
-          className="chat-input"
-        />
-        <button type="submit" className="send-button">
-          Send
-        </button>
-      </form>
-      <button onClick={() => auth.signOut()} className="logout-button">
-        Logout
-      </button>
     </div>
   );
 };
