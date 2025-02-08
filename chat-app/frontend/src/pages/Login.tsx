@@ -2,9 +2,9 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
+import "../styles/login.css";
 
 const Login: React.FC = () => {
-  // Consolidate email and password into one state object
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -30,13 +30,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleLogin}>
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
+      {error && <p className="login-error">{error}</p>}
+      <form className="login-form" onSubmit={handleLogin}>
         <input
           type="email"
           name="email"
+          className="login-input"
           placeholder="Email"
           value={credentials.email}
           onChange={handleChange}
@@ -44,13 +45,14 @@ const Login: React.FC = () => {
         <input
           type="password"
           name="password"
+          className="login-input"
           placeholder="Password"
           value={credentials.password}
           onChange={handleChange}
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-button">Login</button>
       </form>
-      <p>
+      <p className="login-register">
         Don't have an account? <a href="/register">Register</a>
       </p>
     </div>

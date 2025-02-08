@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { setDoc, doc } from "firebase/firestore";
+import "../styles/register.css";
 
 const Register: React.FC = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -18,12 +19,10 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError(null);
     const { email, password } = credentials;
-
     if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
       return;
     }
-
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -32,7 +31,6 @@ const Register: React.FC = () => {
         email: user.email,
         displayName: user.email ? user.email.split("@")[0] : ""
       });
-      console.log("Register Success:", userCredential);
       navigate("/chat");
     } catch (error: any) {
       console.error("Registration error:", error);
@@ -41,14 +39,15 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleRegister}>
+    <div className="register-container">
+      <h2 className="register-title">Register</h2>
+      {error && <p className="register-error">{error}</p>}
+      <form className="register-form" onSubmit={handleRegister}>
         <input
           type="email"
           name="email"
           placeholder="Email"
+          className="register-input"
           value={credentials.email}
           onChange={handleChange}
         />
@@ -56,12 +55,13 @@ const Register: React.FC = () => {
           type="password"
           name="password"
           placeholder="Password"
+          className="register-input"
           value={credentials.password}
           onChange={handleChange}
         />
-        <button type="submit">Register</button>
+        <button type="submit" className="register-button">Register</button>
       </form>
-      <p>
+      <p className="register-login">
         Already have an account? <a href="/">Login</a>
       </p>
     </div>
