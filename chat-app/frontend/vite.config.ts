@@ -8,4 +8,4 @@ export default defineConfig({
   preview: {
     allowedHosts: ["chat-app-frontend-p209.onrender.com"],
   },
-});
+});  
