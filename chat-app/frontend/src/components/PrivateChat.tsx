@@ -80,7 +80,7 @@ const PrivateChat: React.FC<PrivateChatProps> = ({ selectedUser }) => {
     }
     typingTimeoutRef.current = setTimeout(() => {
       updateTypingStatus(false);
-    }, 5000);
+    }, 2000);
   };
 
   const sendMessage = async () => {
