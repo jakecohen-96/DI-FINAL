@@ -19,6 +19,7 @@ const Chat: React.FC = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       if (!currentUserId) return;
+      setLoading(true);
       try {
         const querySnapshot = await getDocs(collection(db, "users"));
         const userList = querySnapshot.docs
@@ -33,10 +34,6 @@ const Chat: React.FC = () => {
     };
     fetchUsers();
   }, [currentUserId]);
-
-  if (loading) {
-    return <div>Loading users...</div>;
-  }
 
   const handleLogout = async () => {
     try {
@@ -61,7 +58,9 @@ const Chat: React.FC = () => {
       <div className="chat-content">
         <aside className="users-list">
           <h3>Users</h3>
-          {users.length > 0 ? (
+          {loading ? (
+            <p>Loading users...</p>
+          ) : users.length > 0 ? (
             users.map(user => (
               <button
                 key={user.id}

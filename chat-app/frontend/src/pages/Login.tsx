@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
+import API_URL from "../config/api";
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -21,8 +22,22 @@ const Login: React.FC = () => {
     const { email, password } = credentials;
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login Success:", userCredential);
-      navigate("/chat");
+      const token = await userCredential.user.getIdToken(); // Get Firebase Auth token
+      
+      // Send token to backend for verification
+      const response = await fetch(`${API_URL}/verify-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Login Success:", data);
+        navigate("/chat");
+      } else {
+        setError("Authentication failed. Please try again.");
+      }
     } catch (error: any) {
       console.error("Login error:", error);
       setError("Invalid email or password. Please try again.");

@@ -8,11 +8,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
 
   if (loading) return <p>Loading...</p>;
+  if (error) {
+    console.error("Authentication error:", error);
+    return <p>Error loading authentication. Please try again.</p>;
+  }
 
-  return user ? children : <Navigate to="/" />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
