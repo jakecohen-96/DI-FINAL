@@ -1,7 +1,8 @@
 import express from "express";
-import admin from "../config/firebaseAdmin"; // Adjust the path as needed
+import admin from "../config/firebaseAdmin";
 
 const router = express.Router();
+
 
 router.post("/verify-token", async (req, res) => {
   const { token } = req.body;
@@ -9,14 +10,11 @@ router.post("/verify-token", async (req, res) => {
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     res.status(200).json({ message: "Token is valid", user: decodedToken });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(401).json({ message: "Invalid token", error: error.message });
-    } else {
-      res.status(401).json({ message: "Invalid token", error: "Unknown error" });
-    }
+  } catch (error: any) {
+    res.status(401).json({ message: "Invalid token", error: error.message });
   }
 });
+
 
 router.post("/logout", (req, res) => {
   res.status(200).json({ message: "User logged out" });
