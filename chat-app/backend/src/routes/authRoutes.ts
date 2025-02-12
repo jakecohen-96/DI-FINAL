@@ -6,7 +6,7 @@ const router = express.Router();
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    databaseURL: "https://jake-s-chat-app-default-rtdb.europe-west1.firebasedatabase.app"
+    databaseURL: "https://jake-s-chat-app-default-rtdb.europe-west1.firebasedatabase.app",
   });
 }
 
