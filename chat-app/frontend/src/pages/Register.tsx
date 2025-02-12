@@ -4,7 +4,6 @@ import { auth, db } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { setDoc, doc } from "firebase/firestore";
 import "../styles/register.css";
-import API_URL from "../config/api";
 
 const Register: React.FC = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
@@ -27,28 +26,12 @@ const Register: React.FC = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      const token = await user.getIdToken();
-
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
         displayName: user.email ? user.email.split("@")[0] : ""
       });
-
-      // Send token to backend for verification
-      const response = await fetch(`${API_URL}/verify-token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Registration Success:", data);
-        navigate("/chat");
-      } else {
-        setError("Authentication failed. Please try again.");
-      }
+      navigate("/chat");
     } catch (error: any) {
       console.error("Registration error:", error);
       setError(error.message);

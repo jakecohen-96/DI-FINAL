@@ -21,3 +21,4 @@ app.listen(PORT, () => {
     console.log(`server running on ${PORT}`);
 });
 
+console.log("FIREBASE_ADMIN_SDK:", process.env.FIREBASE_ADMIN_SDK);
