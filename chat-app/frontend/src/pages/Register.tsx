@@ -33,6 +33,7 @@ const Register: React.FC = () => {
       });
       navigate("/chat");
     } catch (error: any) {
+      console.error("Registration error:", error);
       setError(error.message);
     }
   };
@@ -42,8 +43,22 @@ const Register: React.FC = () => {
       <h2 className="register-title">Register</h2>
       {error && <p className="register-error">{error}</p>}
       <form className="register-form" onSubmit={handleRegister}>
-        <input type="email" name="email" placeholder="Email" className="register-input" value={credentials.email} onChange={handleChange} />
-        <input type="password" name="password" placeholder="Password" className="register-input" value={credentials.password} onChange={handleChange} />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          className="register-input"
+          value={credentials.email}
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          className="register-input"
+          value={credentials.password}
+          onChange={handleChange}
+        />
         <button type="submit" className="register-button">Register</button>
       </form>
       <p className="register-login">
